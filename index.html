@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trips - Trips App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .card {
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .trips-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .loading-spinner {
+            display: none;
+            margin: 50px auto;
+            width: 3rem;
+            height: 3rem;
+        }
+
+        .trip-item {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            padding: 20px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+
+        .trip-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        .trip-details {
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            display: none;
+        }
+
+        .invite-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-4">
+        <!-- Search Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Search Trips</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <input type="text" id="search-letter" class="form-control" placeholder="Search by city or zone">
+                    </div>
+                    <div class="col-md-4">
+                        <button id="search-button" class="btn btn-primary w-100">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Trips Link -->
+        <div class="text-center mb-4">
+            <a href="#" id="active-trips-link" class="btn btn-info">View Active Trips</a>
+        </div>
+
+        <div class="text-center mb-4">
+            <a href="/view_trip.html" id="trip-detail-link" class="btn btn-info">Trip details for the driver</a>
+        </div>
+
+        <!-- Trips Section -->
+        <div id="trips-section">
+            <h3 class="text-center mb-4">All Trips</h3>
+            <div id="trips-list" class="list-group"></div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="text-center">
+            <div id="loading-spinner" class="spinner-border loading-spinner" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="alert alert-danger" id="error-message">Failed to load trips. Please try again.</div>
+    </div>
+
+    <script>
+        const HOST = "http://127.0.0.1:8000"; // Update with your backend URL
+        const AUTH_TOKEN = localStorage.getItem("authToken"); // Assuming token is stored in localStorage
+        const USER_TYPE = localStorage.getItem("userType");
+
+        // Display loading spinner
+        function showLoading() {
+            document.getElementById('loading-spinner').style.display = 'block';
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            document.getElementById('loading-spinner').style.display = 'none';
+        }
+
+        // Redirect to login if not authenticated
+        function checkAuthentication() {
+            if (!AUTH_TOKEN) {
+                window.location.href = "/login"; // Redirect to login page if not logged in
+                return false;
+            }
+            return true;
+        }
+
+        function checkUserType() {
+            if (USER_TYPE == "DR") {
+                document.getElementById('view-trip-link').style.display = 'block'; // Show the link for drivers
+            }
+        }
+
+        // Display trips in the list
+        function displayTrips(trips) {
+            const tripsList = document.getElementById('trips-list');
+            tripsList.innerHTML = '';
+
+            trips.forEach(trip => {
+                const tripItem = document.createElement('div');
+                tripItem.className = 'trip-item';
+
+                // Format and display trip details with a link to the detail page
+                tripItem.innerHTML = `
+                    <div class="trip-details">
+                        <strong>Origin:</strong> ${trip.origin_station.city}, ${trip.origin_station.zone}<br>
+                        <strong>Destination:</strong> ${trip.destination_station.city}, ${trip.destination_station.zone}
+                    </div>
+                    <div class="trip-details">
+                        <strong>Departure Time:</strong>${trip.departure_time}<br>
+                        <strong>Return Time:</strong> ${trip.return_time}
+                    </div>
+                    <div class="trip-details">
+                        <strong>Seats Available:</strong> ${trip.available_seats}
+                    </div>
+                    <div>
+                        <button onclick="inviteToTrip(${trip.id})" class="btn btn-primary btn-sm">Join the Ride</button>
+                    </div>
+
+                `;
+                tripsList.appendChild(tripItem);
+            });
+        }
+
+        // Fetch all trips
+        async function getTrips() {
+            showLoading();
+            try {
+                const response = await axios.get(`${HOST}/`);
+                displayTrips(response.data);
+            } catch (error) {
+                console.error('Error fetching trips:', error);
+                document.getElementById('error-message').style.display = 'block';
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Fetch active trips
+        async function getActiveTrips() {
+            showLoading();
+            try {
+                const response = await axios.get(`${HOST}/active_trips/`);
+                displayTrips(response.data);
+            } catch (error) {
+                console.error('Error fetching active trips:', error);
+                document.getElementById('error-message').style.display = 'block';
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Search trips by letter
+        async function searchTrips() {
+            const letter = document.getElementById('search-letter').value.trim();
+            if (!letter) return;
+
+            showLoading();
+            try {
+                const response = await axios.get(`${HOST}/search/`, {
+                    params: { letter }
+                });
+                displayTrips(response.data);
+            } catch (error) {
+                console.error('Error searching trips:', error);
+                document.getElementById('error-message').style.display = 'block';
+            } finally {
+                hideLoading();
+            }
+        }
+
+
+        // Invite to trip
+        async function inviteToTrip(tripId) {
+            if (!checkAuthentication()) return;
+
+            try {
+                const response = await axios.post(`${HOST}/${tripId}/invite/`, {}, {
+                    headers: { Authorization: `Bearer ${AUTH_TOKEN}` }
+                });
+                alert(response.data.status);// מחזיר הודעה אם הצליח להתחבר ולהצטרף לטיול
+            } catch (error) {
+                console.error('Error inviting to trip:', error);
+                alert(error.response.data.error);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('search-button').addEventListener('click', searchTrips);
+        document.getElementById('active-trips-link').addEventListener('click', function (event) {
+            event.preventDefault();
+            getActiveTrips();
+        });
+
+        // Load all trips initially
+        getTrips();
+        checkUserType()
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Trips App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-message {
+            display: none;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container login-container">
+        <h2 class="text-center">Login</h2>
+        <form id="login-form">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+            <div id="login-error" class="error-message mt-3">Login failed. Please check your credentials.</div>
+        </form>
+    </div>
+
+    <script>
+        const HOST = "http://127.0.0.1:8000";
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginError = document.getElementById('login-error');
+
+            try {
+                // First, send the login request to get the tokens
+                const response = await axios.post(`${HOST}/login/`, { username, password });
+                const authToken = response.data.access;
+                const refreshToken = response.data.refresh;
+
+                // Store tokens in localStorage
+                localStorage.setItem('authToken', authToken);
+                localStorage.setItem('refreshToken', refreshToken);
+
+                // Make a request to get the user information after successful login
+                const userInfoResponse = await axios.get(`${HOST}/users/user`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`  // Pass the token in the header
+                    }
+                });
+
+                // Extract userType from the response and store it in localStorage
+                const userType = userInfoResponse.data.user_type;
+                localStorage.setItem('userType', userType);
+
+                // Hide the error message if login is successful
+                loginError.style.display = 'none';
+
+                // Redirect to the main page
+                window.location.href = 'index.html'; // Redirect to your main page or dashboard
+
+            } catch (error) {
+                console.error('Login error:', error);
+                loginError.style.display = 'block';
+                loginError.innerHTML = 'Login failed. Please check your credentials.';
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+    </script>
+
+</body>
+
+</html>
