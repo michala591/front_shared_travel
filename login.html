@@ -81,8 +81,13 @@
                 // Hide the error message if login is successful
                 loginError.style.display = 'none';
 
-                // Redirect to the main page
-                window.location.href = 'index.html'; // Redirect to your main page or dashboard
+                const USER_TYPE = localStorage.getItem("userType");
+                if (USER_TYPE == "DR") {
+                    window.location.href = 'driver_index.html';
+                }
+                else {
+                    window.location.href = 'index.html';
+                }               // Redirect to the main page
 
             } catch (error) {
                 console.error('Login error:', error);
