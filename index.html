@@ -69,9 +69,11 @@
         <a class="navbar-brand" href="#">Travel App</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="login.html" id="loginLink">Login</a></li>
-                <li class="nav-item"><a class="nav-link" href="register.html" id="registerLink">Register</a></li>
-                <li class="nav-item" id="logout" style="display: none;"><a class="nav-link" href="#">Logout</a></li>
+                <li class="nav-item" id="loginItem"><a class="nav-link" href="login.html">Login</a></li>
+                <li class="nav-item" id="registerItem"><a class="nav-link" href="register.html">Register</a></li>
+                <li class="nav-item" id="logoutItem">
+                    <a class="nav-link" href="#" onclick="logout()">Logout</a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -136,6 +138,13 @@
                 return false;
             }
             return true;
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('userType');
+            window.location.href = 'login.html';
         }
 
         // Display trips in the list
