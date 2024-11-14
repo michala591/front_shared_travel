@@ -60,13 +60,38 @@
         .invite-btn {
             margin-top: 10px;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .close {
+            float: right;
+            cursor: pointer;
+        }
     </style>
 </head>
 
 <body>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-        <a class="navbar-brand" href="#">Travel App</a>
+        <a class="navbar-brand" href="#">Travel App- DRIVER</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" href="login.html" id="loginLink">Login</a></li>
@@ -82,10 +107,23 @@
     <br>
     <div id="tripList" class="row"></div>
     </div>
+    <div id="passenger-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3>Passenger List</h3>
+            <ul id="passenger-list">
+                <!-- Passengers will be dynamically added here -->
+            </ul>
+        </div>
+    </div>
+
 
     <div class="container my-4">
         <div class="text-center mb-4">
             <a href="#" id="get-my-car" class="btn btn-info">My Car</a>
+        </div>
+        <div class="text-center mb-4">
+            <a href="#" id="add-car" class="btn btn-info">Add Car</a>
         </div>
         <div class="text-center mb-4">
             <a href="#" id="get-all-trips" class="btn btn-info">View All Trips</a>
@@ -93,22 +131,22 @@
         <div class="text-center mb-4">
             <a href="#" id="get-my-trips" class="btn btn-info">My Trips</a>
         </div>
+        <div class="text-center mb-4">
+            <a href="#" id="add-trip" class="btn btn-info">Add Trip</a>
+        </div>
         <!-- Add Trip Form -->
-        <h3 class="text-center">Add a New Trip</h3>
-        <form id="add-trip-form">
+        <form id="add-trip-form" style="display: none;" onsubmit="addTrip(event)">
             <div class="mb-3">
                 <label for="origin_station" class="form-label">Origin Station</label>
                 <div class="d-flex">
-                    <select class="form-select" id="origin_station" required>
-                    </select>
+                    <select class="form-select" id="origin_station" required></select>
                 </div>
             </div>
 
             <div class="mb-3">
                 <label for="destination_station" class="form-label">Destination Station</label>
                 <div class="d-flex">
-                    <select class="form-select" id="destination_station" required>
-                    </select>
+                    <select class="form-select" id="destination_station" required></select>
                 </div>
             </div>
 
@@ -117,31 +155,51 @@
                 <input type="text" class="form-control" id="new_city" placeholder="City">
                 <label for="new_zone" class="form-label mt-2">Zone</label>
                 <input type="text" class="form-control" id="new_zone" placeholder="Zone">
-                <button type="button" class="btn btn-primary mt-2" id="add-new-destination">Add
-                    Destination</button>
+                <button type="button" class="btn btn-primary mt-2" id="add-new-destination"
+                    onclick="addNewLocation()">Add Destination</button>
             </div>
-    </div>
-    </div>
-    <div class="mb-3">
-        <label for="departure_time" class="form-label">Departure Time</label>
-        <input type="time" class="form-control" id="departure_time" required>
-    </div>
-    <div class="mb-3">
-        <label for="return_time" class="form-label">Return Time</label>
-        <input type="time" class="form-control" id="return_time" required>
-    </div>
-    <div class="mb-3">
-        <label for="days" class="form-label">Days (e.g., Mon-Fri)</label>
-        <input type="text" class="form-control" id="days" required>
-    </div>
-    <div class="mb-3">
-        <label for="car" class="form-label">My Car</label>
-        <input type="text" class="form-control" id="car" required>
-    </div>
-    <button type="submit" class="btn btn-success">Add Trip</button>
-    </form>
+
+
+            <div class="mb-3">
+                <label for="departure_time" class="form-label">Departure Time</label>
+                <input type="time" class="form-control" id="departure_time" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="return_time" class="form-label">Return Time</label>
+                <input type="time" class="form-control" id="return_time" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="days" class="form-label">Days (e.g., Mon-Fri)</label>
+                <input type="text" class="form-control" id="days" required>
+            </div>
+
+            <button type="submit" class="btn btn-success">Add Trip</button>
+        </form>
+
+        <form id="add-car-form" style="display: none;" onsubmit="addCar(event)">
+            <div class="mb-3">
+                <label for="license_plate" class="form-label">License Plate</label>
+                <input type="text" class="form-control" id="license_plate" placeholder="License Plate" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="model" class="form-label">Model</label>
+                <input type="text" class="form-control" id="model" placeholder="Model" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="max_capacity" class="form-label">Max Capacity</label>
+                <input type="number" class="form-control" id="max_capacity" placeholder="Max Capacity" required>
+            </div>
+
+            <button type="submit" class="btn btn-success">Add Car</button>
+        </form>
 
     </div>
+
+    <!-- Edit Trip Modal Form -->
 
 
     <!-- Trips Section -->
@@ -167,10 +225,6 @@
         const HOST = "http://127.0.0.1:8000"; // Update with your backend URL
         const AUTH_TOKEN = localStorage.getItem("authToken"); // Assuming token is stored in localStorage
         const USER_TYPE = localStorage.getItem("userType");
-        window.onload = function () {
-            getCarId();  // Pre-fill the car field on page load
-        };
-
 
         // Display loading spinner
         function showLoading() {
@@ -191,6 +245,15 @@
             return true;
         }
 
+        function tripId(tripId) {
+            localStorage.setItem('tripId', tripId);
+            window.location.href = 'edit_trip.html';
+        }
+
+        function editCar() {
+            // localStorage.setItem('carId', carId);
+            window.location.href = 'edit_car.html';
+        }
         // Display trips in the list
         function displayTrips(trips) {
             const tripsList = document.getElementById('trips-list');
@@ -215,7 +278,7 @@
                         <strong>Seats Available:</strong> ${trip.available_seats}
                     </div>
                     <div>
-                    <button onclick="editTrip(${trip.id})" class="btn btn-warning btn-sm">Edit Trip</button>
+                    <button onclick="tripId(${trip.id})" class="btn btn-warning btn-sm">Edit Trip</button>
                     <button onclick="deleteTrip(${trip.id})" class="btn btn-danger btn-sm">Delete Trip</button>
                     <button onclick="fetchPassengers(${trip.id})" class="btn btn-info btn-sm">View Passengers</button>
                     <button onclick="toggleActiveStatus()" class="btn btn-secondary btn-sm">Toggle Active</button>
@@ -247,20 +310,22 @@
             <strong>Model:</strong> ${car.model}<br>
         </div>
         <div>
-            <button onclick="editTrip(${car.id})" class="btn btn-warning btn-sm">Edit Trip</button>
-            <button onclick="deleteTrip(${car.id})" class="btn btn-danger btn-sm">Delete Trip</button>              
+            <button onclick="editCar()" class="btn btn-warning btn-sm">Edit Car</button>
+            <button onclick="deleteCar(${car.id})" class="btn btn-danger btn-sm">Delete Car</button>              
         </div>
     `;
             carList.appendChild(carItem);
         }
-
+        // Show the edit form with current trip data
+        function closeModal() {
+            document.getElementById('passenger-modal').style.display = 'none';
+        }
         // Fetch all trips
         async function getAllTrips() {
             showLoading();
             window.location.href = "/index.html"
         }
 
-        // Fetch active trips
         async function getMyTrips() {
             showLoading();
             try {
@@ -276,40 +341,50 @@
             }
         }
 
-        async function editTrip(id) {
-            // Implement edit functionality here
-            // Prompt user for trip details and send a PUT request to update
-        }
-
         async function deleteTrip(id) {
             try {
                 await axios.delete(`${HOST}/${id}/`, {
                     headers: { Authorization: `Bearer ${AUTH_TOKEN}` }
                 });
                 alert("Trip deleted successfully");
-                getAllTrips();
+                getMyTrips();
             } catch (error) {
                 console.error('Error deleting trip:', error);
             }
         }
 
-        async function getCarId() {
-            showLoading();
+        async function addCar(event) {
+            event.preventDefault();  // Prevent form submission from reloading the page
+
+            if (!checkAuthentication()) return; // Check authentication
+
+            const license_plate = document.getElementById('license_plate').value;
+            const model = document.getElementById('model').value;
+            const max_capacity = parseInt(document.getElementById('max_capacity').value);
+
+            if (!license_plate || !model || !max_capacity) {
+                alert("Please enter all details.");
+                return;
+            }
+
             try {
-                const response = await axios.get(`${HOST}/cars/car_id`, {
+                const response = await axios.post(`${HOST}/cars/my_car/`, {
+                    license_plate: license_plate,
+                    model: model,
+                    max_capacity: max_capacity
+                }, {
                     headers: { Authorization: `Bearer ${AUTH_TOKEN}` }
                 });
 
-                const carId = response.data.id;
+                alert("New car added!");
 
-                // Set the value of the car input field with the car ID
-                document.getElementById('car').value = carId;
-
+                // Reset form fields
+                document.getElementById('license_plate').value = '';
+                document.getElementById('model').value = '';
+                document.getElementById('max_capacity').value = '';
             } catch (error) {
-                console.error('Error fetching car:', error);
-                document.getElementById('error-message').style.display = 'block';
-            } finally {
-                hideLoading();
+                console.error('Error adding new car:', error);
+                alert("Failed to add car. Please try again.");
             }
         }
 
@@ -328,15 +403,10 @@
             }
         }
 
-        async function editTrip(id) {
-            // Implement edit functionality here
-            // Prompt user for trip details and send a PUT request to update
-        }
-
-        async function deleteTrip(id) {
+        async function deleteCar(id) {
             try {
                 alert("Are you sure you want to remove the car?");
-                await axios.delete(`${HOST}/cars/my_car`, {
+                await axios.delete(`${HOST}/car/my_car`, {
                     headers: { Authorization: `Bearer ${AUTH_TOKEN}` }
                 });
                 alert("Car deleted successfully");
@@ -345,14 +415,29 @@
                 console.error('Error deleting car:', error);
             }
         }
-        // Fetch passengers
+
+
         async function fetchPassengers(tripId) {
             try {
                 const response = await axios.get(`${HOST}/${tripId}/passengers/`, {
                     headers: { Authorization: `Bearer ${AUTH_TOKEN}` }
                 });
-                console.log("Passengers:", response.data);
-                // Display passengers here (e.g., show in a modal)
+
+                const passengers = response.data;
+                const passengerList = document.getElementById('passenger-list');
+
+                // Clear previous passenger list
+                passengerList.innerHTML = '';
+
+                // Populate the list with passengers
+                passengers.forEach(passenger => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${passenger.first_name} ${passenger.last_name} (${passenger.username})`;
+                    passengerList.appendChild(listItem);
+                });
+
+                // Show the modal
+                document.getElementById('passenger-modal').style.display = 'block';
             } catch (error) {
                 console.error('Error fetching passengers:', error);
             }
@@ -369,21 +454,6 @@
                 console.error('Error toggling active status:', error);
             }
         }
-
-        // async function getLocationId() {
-        //     showLoading();
-        //     try {
-        //         const response = await axios.get(`${HOST}/locations/location_id`, {
-        //         });
-        //         const locationId = response.data.id;
-        //         document.getElementById('location').value = locationId;
-        //     } catch (error) {
-        //         console.error('Error fetching car:', error);
-        //         document.getElementById('error-message').style.display = 'block';
-        //     } finally {
-        //         hideLoading();
-        //     }
-        // }
 
         async function getLocations() {
             try {
@@ -430,6 +500,7 @@
                 console.error('Error adding new location:', error);
             }
         }
+
         async function getLocationId() {
             showLoading();
             try {
@@ -461,11 +532,6 @@
             const return_time = document.getElementById('return_time');
             const days = document.getElementById('days');
 
-            // Check if any element is null and log it for debugging
-            if (!origin_station || !destination_station || !departure_time || !return_time || !days || !car_id) {
-                console.error('One or more form elements are missing');
-                return; // Exit if any of the elements are missing
-            }
 
             // Get values of the elements
             const origin_station_value = parseInt(origin_station.value || origin_station_id, 10);  // Use passed ID if empty
@@ -473,15 +539,6 @@
             const departure_time_value = departure_time.value;
             const return_time_value = return_time.value;
             const days_value = days.value;
-
-            console.log({
-                origin_station: origin_station_value,
-                destination_station: destination_station_value,
-                departure_time: departure_time_value,
-                return_time: return_time_value,
-                days: days_value,
-                car: car_id_value,
-            })
 
             try {
                 const response = await axios.post(`${HOST}/add_trips/`, {
@@ -495,7 +552,7 @@
                 });
 
                 if (response.status === 201) {
-                    getAllTrips(); // Refresh the trips list
+                    getMyTrips(); // Refresh the trips list
                 }
             } catch (error) {
                 console.error('Error adding trip:', error);
@@ -503,54 +560,16 @@
             }
         }
 
-        // async function addTrip(event) {
-        //     event.preventDefault(); // Prevent form submission
 
-        //     if (!checkAuthentication()) return; // Check authentication
-
-        //     const origin_station = document.getElementById('origin_station');
-        //     const destination_station = document.getElementById('destination_station');
-        //     const departure_time = document.getElementById('departure_time');
-        //     const return_time = document.getElementById('return_time');
-        //     const days = document.getElementById('days');
-        //     const car_id = document.getElementById('car');  // Correct reference to 'car'
-
-        //     // Check if any element is null and log it for debugging
-        //     if (!origin_station || !destination_station || !departure_time || !return_time || !days || !car_id) {
-        //         console.error('One or more form elements are missing');
-        //         return; // Exit if any of the elements are missing
-        //     }
-
-        //     // Get values of the elements
-        //     const origin_station_value = origin_station.value;
-        //     const destination_station_value = destination_station.value;
-        //     const departure_time_value = departure_time.value;
-        //     const return_time_value = return_time.value;
-        //     const days_value = days.value;
-        //     const car_id_value = car_id.value;
-
-        //     try {
-        //         const response = await axios.post(`${HOST}/add_trips/`, {
-        //             origin_station: origin_station_value,
-        //             destination_station: destination_station_value,
-        //             departure_time: departure_time_value,
-        //             return_time: return_time_value,
-        //             days: days_value,
-        //             car: car_id_value,
-        //         }, {
-        //             headers: { Authorization: `Bearer ${AUTH_TOKEN}` }
-        //         });
-
-        //         if (response.status === 201) {
-        //             getAllTrips(); // Refresh the trips list
-        //         }
-        //     } catch (error) {
-        //         console.error('Error adding trip:', error);
-        //         alert('Failed to add trip. Please try again.');
-        //     }
-        // }
-
-        document.getElementById('add-trip-form').addEventListener('submit', addTrip);
+        document.getElementById('add-car').addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent default link behavior
+            document.getElementById('add-car-form').style.display = 'block'; // Show the form
+        });
+        document.getElementById('add-trip').addEventListener('click', function (event) {
+            event.preventDefault();
+            document.getElementById('add-trip-form').style.display = 'block';
+            getLocations(); // Load locations when form is displayed
+        });
         document.getElementById('get-all-trips').addEventListener('click', function (event) {
             event.preventDefault();
             getAllTrips();
