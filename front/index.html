@@ -209,23 +209,8 @@
         }
 
         // Search trips by letter
-        async function searchTrips() {
-            const letter = document.getElementById('search-letter').value.trim();
-            if (!letter) return;
-
-            showLoading();
-            try {
-                const response = await axios.get(`${HOST}/search/`, {
-                    params: { letter }
-                });
-                displayTrips(response.data);
-            } catch (error) {
-                console.error('Error searching trips:', error);
-                document.getElementById('error-message').style.display = 'block';
-            } finally {
-                hideLoading();
-            }
-        }
+        
+        
 
 
         // Invite to trip
