@@ -9,24 +9,71 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #f1f5f8;
             font-family: 'Arial', sans-serif;
         }
 
-        .card {
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+        .navbar {
+            background-color: #34495e;
         }
 
-        .trips-list {
-            max-width: 800px;
-            margin: 0 auto;
+        .navbar a.navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .card {
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
 
         .card-header {
-            background-color: #007bff;
+            background-color: #2980b9;
             color: white;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .trips-list {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .trip-item {
+            background-color: #ffffff;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .trip-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
+            background-color: #f0f4f8;
+        }
+
+        .trip-details {
+            margin-bottom: 15px;
+        }
+
+        .invite-btn {
+            margin-top: 20px;
+            padding: 8px 15px;
+            background-color: #2980b9;
+            border-color: #2980b9;
+            color: white;
+            font-weight: bold;
+        }
+
+        .invite-btn:hover {
+            background-color: #3498db;
+            border-color: #3498db;
         }
 
         .loading-spinner {
@@ -36,85 +83,96 @@
             height: 3rem;
         }
 
-        .trip-item {
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            padding: 20px;
-            margin-bottom: 10px;
-            background-color: #fff;
-            border-radius: 8px;
-        }
-
-        .trip-item:hover {
-            background-color: #f1f1f1;
-        }
-
-        .trip-details {
-            margin-bottom: 10px;
-        }
-
         .alert {
             display: none;
+            margin-top: 20px;
         }
 
-        .invite-btn {
-            margin-top: 10px;
+        .search-section {
+            margin: 30px 0;
+        }
+
+        .search-input {
+            border-radius: 20px;
+            padding: 10px 15px;
+        }
+
+        .search-button {
+            background-color: #2980b9;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            margin-left: 10px;
+        }
+
+        .search-button:hover {
+            background-color: #3498db;
+        }
+
+        #active-trips-link {
+            background-color: #3498db;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            margin-top: 20px;
+        }
+
+        #active-trips-link:hover {
+            background-color: #2980b9;
         }
     </style>
 </head>
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <a class="navbar-brand" href="#">Travel App</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item" id="home"><a class="nav-link" href="index.html">home</a></li>
-                <li class="nav-item" id="registerItem"><a class="nav-link" href="register.html">Register</a></li>
-                <li class="nav-item" id="loginItem"><a class="nav-link" href="login.html">Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.html" id="homeLink">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="register.html" id="registerLink">Register</a></li>
+                <li class="nav-item"><a class="nav-link" href="login.html" id="loginLink">Login</a></li>
                 <li class="nav-item" id="logoutItem">
                     <a class="nav-link" href="#" onclick="logout()">Logout</a>
                 </li>
             </ul>
         </div>
     </nav>
-    <br>
-    <br>
-    <br>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-8">
-                <input type="text" id="search-letter" class="form-control"
-                    placeholder="Search availble trips by city or zone">
-            </div>
-            <div class="col-md-4">
-                <button id="search-button" class="btn btn-primary w-100">Search</button>
+
+    <div class="container mt-5 pt-5">
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="row">
+                <div class="col-md-8">
+                    <input type="text" id="search-letter" class="form-control search-input"
+                        placeholder="Search trips by city or zone">
+                </div>
+                <div class="col-md-4">
+                    <button id="search-button" class="btn search-button w-100">Search</button>
+                </div>
             </div>
         </div>
-    </div>
-    <br>
-    <div id="tripList" class="row"></div>
-    </div>
 
-    <!-- Active Trips Link -->
-    <div class="text-center mb-4">
-        <a href="#" id="active-trips-link" class="btn btn-info">View Active Trips</a>
-    </div>
-    <!-- Trips Section -->
-    <div id="trips-section">
-        <h3 class="text-center mb-4">All Trips</h3>
-        <div id="trips-list" class="list-group"></div>
-    </div>
-
-    <!-- Loading Spinner -->
-    <div class="text-center">
-        <div id="loading-spinner" class="spinner-border loading-spinner" role="status">
-            <span class="visually-hidden">Loading...</span>
+        <!-- Active Trips Link -->
+        <div class="text-center mb-4">
+            <a href="#" id="active-trips-link" class="btn">View Active Trips</a>
         </div>
-    </div>
 
-    <!-- Error Message -->
-    <div class="alert alert-danger" id="error-message">Failed to load trips. Please try again.</div>
+        <!-- Trips Section -->
+        <div id="trips-section">
+            <h3 class="text-center mb-4">All Trips</h3>
+            <div id="trips-list" class="list-group"></div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="text-center">
+            <div id="loading-spinner" class="spinner-border loading-spinner" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="alert alert-danger" id="error-message">Failed to load trips. Please try again.</div>
     </div>
 
     <script>
@@ -141,13 +199,6 @@
             return true;
         }
 
-        function logout() {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('userType');
-            window.location.href = 'login.html';
-        }
-
         // Display trips in the list
         function displayTrips(trips) {
             const tripsList = document.getElementById('trips-list');
@@ -171,9 +222,8 @@
                         <strong>Seats Available:</strong> ${trip.available_seats}
                     </div>
                     <div>
-                        <button onclick="inviteToTrip(${trip.id})" class="btn btn-primary btn-sm">Join the Ride</button>
+                        <button onclick="inviteToTrip(${trip.id})" class="btn invite-btn btn-sm">Join the Ride</button>
                     </div>
-
                 `;
                 tripsList.appendChild(tripItem);
             });
@@ -182,7 +232,6 @@
         // Fetch all trips
         async function getTrips() {
             showLoading();
-            console.log("trip")
             try {
                 const response = await axios.get(`${HOST}/`);
                 displayTrips(response.data);
@@ -214,13 +263,22 @@
             if (!letter) return;
 
             showLoading();
+            document.getElementById('error-message').style.display = 'none';
+
             try {
                 const response = await axios.get(`${HOST}/search/`, {
                     params: { letter }
                 });
-                displayTrips(response.data);
+
+                if (response.data.length === 0) {
+                    document.getElementById('error-message').innerText = 'No trips found.';
+                    document.getElementById('error-message').style.display = 'block';
+                } else {
+                    displayTrips(response.data);
+                }
             } catch (error) {
                 console.error('Error searching trips:', error);
+                document.getElementById('error-message').innerText = 'An error occurred while searching trips. Please try again.';
                 document.getElementById('error-message').style.display = 'block';
             } finally {
                 hideLoading();
@@ -240,23 +298,13 @@
                 const response = await axios.post(`${HOST}/${tripId}/invite/`, {}, {
                     headers: { Authorization: `Bearer ${AUTH_TOKEN}` }
                 });
-                // Success message for joining trip
                 alert(response.data.status);
-                window.location.href = "/index.html"
+                window.location.href = "/index.html";
             } catch (error) {
                 console.error('Error inviting to trip:', error);
-
-                // Check for a response from the server and display the specific error message
-                if (error.response && error.response.data && error.response.data.error) {
-                    alert(error.response.data.error);
-                } else {
-                    // General error message
-                    alert("An error occurred while trying to join the trip. Please try again later.");
-                }
+                alert("An error occurred while trying to join the trip. Please try again later.");
             }
         }
-
-
 
         // Event listeners
         document.getElementById('search-button').addEventListener('click', searchTrips);
