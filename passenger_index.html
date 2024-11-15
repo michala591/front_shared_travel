@@ -126,13 +126,16 @@
 <body>
 
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <a class="navbar-brand" href="#">Travel App- PASSENGERS</a>
+        <a class="navbar-brand" href="#">Travel App</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" href="index.html" id="homeLink">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="register.html" id="registerLink">Register</a></li>
                 <li class="nav-item"><a class="nav-link" href="login.html" id="loginLink">Login</a></li>
-                <li class="nav-item" id="logoutItem">
+                <li class="nav-item" id="account">
+                    <a class="nav-link" href="#" onclick="myAccount()">My Account</a>
+                </li>
+                <li class="nav-item" id="account">
                     <a class="nav-link" href="#" onclick="logout()">Logout</a>
                 </li>
             </ul>
@@ -152,7 +155,9 @@
                 </div>
             </div>
         </div>
-
+        <div class="text-center mb-4">
+            <a href="#" id="get-my-trips" class="btn btn-info">My Trips</a>
+        </div>
         <!-- Active Trips Link -->
         <div class="text-center mb-4">
             <a href="#" id="active-trips-link" class="btn">View Active Trips</a>
@@ -180,6 +185,22 @@
         const AUTH_TOKEN = localStorage.getItem("authToken"); // Assuming token is stored in localStorage
         const USER_TYPE = localStorage.getItem("userType");
 
+        function myAccount() {
+            const USER_TYPE = localStorage.getItem("userType");
+            if (USER_TYPE == "DR") {
+                window.location.href = 'driver_index.html';
+            }
+            else {
+                window.location.href = 'passenger_index.html';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('userType');
+            window.location.href = 'login.html';
+        }
         // Display loading spinner
         function showLoading() {
             document.getElementById('loading-spinner').style.display = 'block';
@@ -224,7 +245,7 @@
                     </div>
                     <div>
                     <button onclick="toggleActiveStatus()" class="btn btn-secondary btn-sm">Toggle Active</button>
-              
+                    <button onclick="deleteTrip(${trip.id})" class="btn btn-danger btn-sm">Delete Trip</button>              
                     </div>
 
                 `;
@@ -255,6 +276,21 @@
                 console.error('Error toggling active status:', error);
             }
         }
+
+
+        async function deleteTrip() {
+            try {
+                // Make sure to use the correct variable for tripId in the URL
+                await axios.delete(`${HOST}/delete_trip/`, {
+                    headers: { Authorization: `Bearer ${AUTH_TOKEN}` }
+                });
+                alert("Trip deleted successfully");
+                getMyTrips();  // Reload or update trips list after deletion
+            } catch (error) {
+                console.error('Error deleting trip:', error);
+            }
+        }
+
 
         document.getElementById('get-my-trips').addEventListener('click', function (event) {
             event.preventDefault();
