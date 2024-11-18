@@ -337,6 +337,7 @@
                 const response = await axios.get(`${HOST}/cars/my_car`, {
                     headers: { Authorization: `Bearer ${AUTH_TOKEN}` }
                 });
+                console.log(car.license_plate, car.model)
                 displayCar(response.data); // Pass the single car object
             } catch (error) {
                 console.error('Error fetching car:', error);
